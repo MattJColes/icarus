@@ -1,0 +1,20 @@
+{
+  "name": "icarus",
+  "version": "1.0.0",
+  "description": "Icarus - AI-powered desktop assistant with agent capabilities",
+  "settings": {
+    "temperature": 0.7,
+    "maxTokens": 4096
+  },
+  "project": {
+    "type": "electron-react-typescript",
+    "platforms": ["macos", "ubuntu", "windows"],
+    "features": [
+      "Local LLM integration with Ollama",
+      "AI agent workflows for document manipulation",
+      "RAG system with vector database",
+      "MCP integration",
+      "Cross-platform desktop application"
+    ]
+  }
+}
