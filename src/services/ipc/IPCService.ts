@@ -1,4 +1,4 @@
-import { Service, ServiceConfig } from '../base/Service';
+import { Service, type ServiceConfig } from '../base/Service';
 
 export interface IPCMessage<T = any> {
   channel: string;

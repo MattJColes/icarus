@@ -1,5 +1,5 @@
 import { ipcMain, BrowserWindow } from 'electron';
-import { IPCService, IPCMessage } from './IPCService';
+import { IPCService, type IPCMessage } from './IPCService';
 import { v4 as uuidv4 } from 'uuid';
 
 export class MainIPCService extends IPCService {

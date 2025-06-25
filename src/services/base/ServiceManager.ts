@@ -1,4 +1,4 @@
-import { Service, ServiceConfig } from './Service';
+import { Service } from './Service';
 import { EventEmitter } from 'events';
 
 export interface ServiceManagerConfig {

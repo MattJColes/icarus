@@ -19,7 +19,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           WebkitAppRegion: 'drag',
           background: 'transparent',
           pointerEvents: 'auto'
-        }}
+        } as React.CSSProperties}
       />
       
       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />

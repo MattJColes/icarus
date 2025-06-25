@@ -1,4 +1,4 @@
-import { Service, ServiceConfig } from '../Service';
+import { Service, type ServiceConfig } from '../Service';
 
 class TestService extends Service {
   constructor(config: ServiceConfig) {

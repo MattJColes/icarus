@@ -28,24 +28,13 @@ module.exports = {
       name: '@electron-forge/maker-deb',
       config: {
         options: {
-          name: 'icarus',
+          name: 'Icarus',
           productName: 'Icarus',
           categories: ['Utility', 'Development'],
           icon: './assets/icons/icon.png',
         },
       },
     },
-    // {
-    //   name: '@electron-forge/maker-rpm',
-    //   config: {
-    //     options: {
-    //       name: 'helios',
-    //       productName: 'Helios',
-    //       categories: ['Utility', 'Development'],
-    //       icon: './assets/icons/icon.png',
-    //     },
-    //   },
-    // },
   ],
   plugins: [
     {

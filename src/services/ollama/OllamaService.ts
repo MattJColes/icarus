@@ -1,19 +1,18 @@
-import { Service, ServiceConfig } from '../base/Service';
-import axios, { AxiosInstance } from 'axios';
+import { Service, type ServiceConfig } from '../base/Service';
+import axios, { type AxiosInstance } from 'axios';
 import { spawn } from 'child_process';
 import { platform } from 'os';
-import * as fs from 'fs/promises';
 import * as path from 'path';
 import {
-  OllamaModel,
-  OllamaModelInfo,
-  OllamaChatRequest,
-  OllamaChatResponse,
-  OllamaPullProgress,
-  OllamaEmbeddingRequest,
-  OllamaEmbeddingResponse,
-  OllamaGenerateRequest,
-  OllamaGenerateResponse,
+  type OllamaModel,
+  type OllamaModelInfo,
+  type OllamaChatRequest,
+  type OllamaChatResponse,
+  type OllamaPullProgress,
+  type OllamaEmbeddingRequest,
+  type OllamaEmbeddingResponse,
+  type OllamaGenerateRequest,
+  type OllamaGenerateResponse,
 } from './types';
 
 export interface OllamaServiceConfig extends ServiceConfig {
@@ -121,15 +120,15 @@ export class OllamaService extends Service {
         stdio: 'pipe',
       });
 
-      this.ollamaProcess.on('error', (error) => {
+      this.ollamaProcess.on('error', (error: any) => {
         reject(new Error(`Failed to start Ollama server: ${error.message}`));
       });
 
-      this.ollamaProcess.stdout?.on('data', (data) => {
+      this.ollamaProcess.stdout?.on('data', (data: any) => {
         this.emit('server:log', data.toString());
       });
 
-      this.ollamaProcess.stderr?.on('data', (data) => {
+      this.ollamaProcess.stderr?.on('data', (data: any) => {
         this.emit('server:error', data.toString());
       });
 
