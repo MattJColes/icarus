@@ -40,7 +40,7 @@ const conversationsPath = path.join(app.getPath('userData'), 'icarus-conversatio
 // RAG database storage
 const ragDatabasePath = path.join(app.getPath('userData'), 'icarus-rag-database.json');
 
-const createWindow = () => {
+const createWindow = async () => {
   loggers.startup('Creating main window');
   
   mainWindow = new BrowserWindow({
@@ -65,13 +65,21 @@ const createWindow = () => {
     mainWindow?.show();
   });
 
-  if (process.env.NODE_ENV === 'development') {
+  // VITE_DEV_SERVER_URL is set by Electron Forge Vite plugin in development
+  if (process.env.VITE_DEV_SERVER_URL) {
     loggers.startup('Loading development URL');
-    mainWindow.loadURL('http://localhost:5173');
+    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
     mainWindow.webContents.openDevTools();
   } else {
-    loggers.startup('Loading production HTML file');
-    mainWindow.loadFile(join(__dirname, '../dist/index.html'));
+    // Try development server first, fallback to production
+    try {
+      loggers.startup('Attempting to load development URL');
+      await mainWindow.loadURL('http://localhost:5173/');
+      mainWindow.webContents.openDevTools();
+    } catch (error) {
+      loggers.startup('Development server not available, loading production HTML file');
+      mainWindow.loadFile(join(__dirname, '../renderer/main_window/index.html'));
+    }
   }
 
   mainWindow.on('closed', () => {
@@ -87,7 +95,7 @@ const createWindow = () => {
 
 app.whenReady().then(async () => {
   loggers.startup('Electron app ready, initializing...');
-  createWindow();
+  await createWindow();
 
   setupIPCHandlers();
   
@@ -101,10 +109,10 @@ app.whenReady().then(async () => {
   
   startAutoIndexing();
 
-  app.on('activate', () => {
+  app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       loggers.startup('Reactivating app - creating new window');
-      createWindow();
+      await createWindow();
     }
   });
 }).catch(error => {

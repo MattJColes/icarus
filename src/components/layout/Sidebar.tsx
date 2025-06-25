@@ -9,13 +9,65 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
+// Icon component to handle proper path resolution
+const IcarusIcon: React.FC<{ className?: string }> = ({ className }) => {
+  const [imageError, setImageError] = React.useState(false);
+  
+  // Multiple paths to try in order
+  const iconPaths = React.useMemo(() => [
+    // Development path
+    '/icon.jpeg',
+    // Production relative paths
+    './icon.jpeg',
+    '../icon.jpeg',
+    // Fallback to null to show gradient icon
+    null
+  ], []);
+
+  const [currentPathIndex, setCurrentPathIndex] = React.useState(0);
+
+  const handleImageError = React.useCallback(() => {
+    if (currentPathIndex < iconPaths.length - 1) {
+      setCurrentPathIndex(prev => prev + 1);
+    } else {
+      setImageError(true);
+    }
+  }, [currentPathIndex, iconPaths.length]);
+
+  const currentPath = iconPaths[currentPathIndex];
+
+  if (imageError || !currentPath) {
+    // Fallback to a styled div that represents Icarus
+    return (
+      <div 
+        className={clsx(
+          'bg-gradient-to-br from-[#5D2E46] to-[#7B3F61] rounded-md flex items-center justify-center text-white font-bold text-sm',
+          className
+        )}
+        title="Icarus"
+      >
+        I
+      </div>
+    );
+  }
+
+  return (
+    <img 
+      key={currentPathIndex} // Force re-render when path changes
+      src={currentPath}
+      alt="Icarus" 
+      className={clsx('rounded-md object-cover', className)}
+      onError={handleImageError}
+    />
+  );
+};
+
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   const {
     conversations,
     activeConversationId,
     setActiveConversation,
     addConversation,
-    deleteConversation,
   } = useAppStore();
 
   const handleNewChat = () => {
@@ -38,7 +90,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     >
       <div className="p-4 flex items-center justify-between">
         {isOpen && (
-          <h1 className="text-xl font-bold helios-gradient-text">Icarus</h1>
+          <div className="flex items-center gap-2">
+            <IcarusIcon className="w-8 h-8" />
+            <h1 className="text-xl font-bold helios-gradient-text">Icarus</h1>
+          </div>
+        )}
+        {!isOpen && (
+          <IcarusIcon className="w-8 h-8 mx-auto" />
         )}
         <button
           onClick={onToggle}

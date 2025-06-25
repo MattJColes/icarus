@@ -4,9 +4,9 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
-    name: 'Helios',
-    executableName: 'Helios',
-    appBundleId: 'com.helios.desktop',
+    name: 'Icarus',
+    executableName: 'Icarus',
+    appBundleId: 'com.icarus.desktop',
     appCopyright: 'Copyright © 2025 Matt Coles',
     icon: './assets/icons/icon',
   },
@@ -15,8 +15,8 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       config: {
-        name: 'Helios',
-        setupExe: 'HeliosSetup.exe',
+        name: 'Icarus',
+        setupExe: 'IcarusSetup.exe',
         setupIcon: './assets/icons/icon.ico',
       },
     },
@@ -28,24 +28,24 @@ module.exports = {
       name: '@electron-forge/maker-deb',
       config: {
         options: {
-          name: 'helios',
-          productName: 'Helios',
+          name: 'icarus',
+          productName: 'Icarus',
           categories: ['Utility', 'Development'],
           icon: './assets/icons/icon.png',
         },
       },
     },
-    {
-      name: '@electron-forge/maker-rpm',
-      config: {
-        options: {
-          name: 'helios',
-          productName: 'Helios',
-          categories: ['Utility', 'Development'],
-          icon: './assets/icons/icon.png',
-        },
-      },
-    },
+    // {
+    //   name: '@electron-forge/maker-rpm',
+    //   config: {
+    //     options: {
+    //       name: 'helios',
+    //       productName: 'Helios',
+    //       categories: ['Utility', 'Development'],
+    //       icon: './assets/icons/icon.png',
+    //     },
+    //   },
+    // },
   ],
   plugins: [
     {

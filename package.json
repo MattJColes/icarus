@@ -2,6 +2,7 @@
   "name": "icarus",
   "private": true,
   "version": "0.0.0",
+  "description": "Desktop AI assistant with local LLM integration, RAG capabilities, and intelligent document processing",
   "main": ".vite/build/main.js",
   "scripts": {
     "dev": "electron-forge start",

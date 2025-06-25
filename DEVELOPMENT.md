@@ -1,8 +1,8 @@
-# Helios Development Guide
+# Icarus Development Guide
 
 ## Overview
 
-Helios is a desktop AI assistant built with Electron, React, and TypeScript. This guide covers development setup, running the project, and building executables for all platforms.
+Icarus (formerly Helios) is a desktop AI assistant built with Electron, React, and TypeScript. This guide covers development setup, running the project, and building executables for all platforms.
 
 ## Prerequisites
 
@@ -40,7 +40,7 @@ Helios is a desktop AI assistant built with Electron, React, and TypeScript. Thi
 ### 1. Clone Repository
 ```bash
 git clone <repository-url>
-cd helios
+cd icarus
 ```
 
 ### 2. Install Dependencies
@@ -92,7 +92,7 @@ This command:
 
 ### Project Structure
 ```
-helios/
+icarus/
 ├── src/                    # React frontend source
 │   ├── components/         # Reusable UI components
 │   ├── hooks/             # Custom React hooks
@@ -102,6 +102,7 @@ helios/
 │   ├── main.ts           # Service-based main process
 │   └── preload.ts        # Preload script for IPC
 ├── public/               # Static assets
+├── assets/                # Application icons and resources
 └── dist/                 # Built application files
 ```
 
@@ -116,6 +117,37 @@ helios/
 
 ### Build Configuration
 The project uses **Electron Forge** for building and packaging. Configuration is in `forge.config.js`.
+
+### Prerequisites for Cross-Platform Builds
+
+Before building for multiple platforms, ensure you have the necessary tools installed:
+
+#### Building on macOS
+- **For macOS builds**: Xcode Command Line Tools (pre-installed)
+- **For Windows builds**: 
+  ```bash
+  brew install wine-stable mono
+  ```
+- **For Linux builds**:
+  ```bash
+  brew install dpkg fakeroot
+  ```
+
+#### Building on Windows
+- **For Windows builds**: Visual Studio Build Tools (pre-installed)
+- **For macOS/Linux builds**: Use WSL2 or Docker
+
+#### Building on Linux
+- **For Linux builds**: build-essential (pre-installed)
+- **For Windows builds**: Wine and Mono
+- **For macOS builds**: Difficult, recommend using CI/CD
+
+### Icon Requirements
+
+Ensure you have the following icon files in the `assets/icons/` directory:
+- `icon.png` - PNG format icon for Linux
+- `icon.ico` - ICO format icon for Windows  
+- `icon.icns` - ICNS format icon for macOS
 
 ### Build Commands
 
@@ -149,21 +181,24 @@ npm run build
 # Package
 npm run package
 
-# Create distributable (.dmg, .app)
+# Create distributable (ZIP)
 npm run make
 ```
 
 **Output Files:**
-- `out/Helios-darwin-x64/Helios.app` - macOS Application Bundle
-- `out/make/zip/darwin/x64/Helios-darwin-x64-1.0.0.zip` - Zipped Application
+- `out/Helios-darwin-arm64/Helios.app` - macOS Application Bundle
+- `out/make/zip/darwin/arm64/Helios-darwin-arm64-0.0.0.zip` - Zipped Application
 
-##### Cross-compile from other platforms
+##### Build for Different Architectures
 ```bash
-# Install macOS build tools (on Linux/Windows)
-npm install --save-dev @electron-forge/maker-dmg
+# For Intel Macs (x64)
+npm run make -- --arch=x64
 
-# Build for macOS
-npx electron-forge package --platform=darwin --arch=x64
+# For Apple Silicon Macs (arm64) 
+npm run make -- --arch=arm64
+
+# Universal build (both architectures)
+npm run make -- --arch=universal
 ```
 
 #### Windows
@@ -184,14 +219,20 @@ npm run make
 - `out/Helios-win32-x64/Helios.exe` - Windows Executable
 - `out/make/squirrel.windows/x64/HeliosSetup.exe` - Windows Installer
 
-##### Cross-compile from other platforms
+##### Cross-compile from macOS
 ```bash
-# Install Windows build tools (on macOS/Linux)
-npm install --save-dev @electron-forge/maker-squirrel
+# First install Wine and Mono (requires admin/sudo)
+brew install wine-stable mono
 
 # Build for Windows
-npx electron-forge package --platform=win32 --arch=x64
+npm run make -- --platform=win32
+
+# For specific architectures
+npm run make -- --platform=win32 --arch=x64
+npm run make -- --platform=win32 --arch=arm64
 ```
+
+**Note**: Wine installation requires sudo access. If you can't install Wine, use GitHub Actions or a Windows machine.
 
 #### Linux
 
@@ -208,34 +249,86 @@ npm run make
 ```
 
 **Output Files:**
-- `out/Helios-linux-x64/helios` - Linux Executable
-- `out/make/deb/x64/helios_1.0.0_amd64.deb` - Debian Package
-- `out/make/rpm/x64/helios-1.0.0-1.x86_64.rpm` - RPM Package
+- `out/Helios-linux-x64/Helios` - Linux Executable
+- `out/make/deb/x64/helios_0.0.0_amd64.deb` - Debian Package
+- `out/make/rpm/x64/helios-0.0.0-1.x86_64.rpm` - RPM Package (if rpmbuild installed)
 
-##### Cross-compile from other platforms
+##### Cross-compile from macOS
 ```bash
-# Install Linux build tools (on macOS/Windows)
-npm install --save-dev @electron-forge/maker-deb @electron-forge/maker-rpm
+# First install dpkg and fakeroot
+brew install dpkg fakeroot
 
-# Build for Linux
-npx electron-forge package --platform=linux --arch=x64
+# For RPM support also install
+brew install rpm
+
+# Build for Linux (DEB only)
+npm run make -- --platform=linux
+
+# For specific architectures
+npm run make -- --platform=linux --arch=x64
+npm run make -- --platform=linux --arch=arm64
 ```
 
-### Cross-Platform Building
+**Important Notes**:
+- Ensure `package.json` includes a `description` field for Linux builds
+- Icon files must exist in `assets/icons/` directory
+- RPM builds require additional setup and may not work cross-platform
 
-#### All Platforms (requires setup on each)
+### Cross-Platform Building Guide
+
+#### Building All Platforms from macOS
+
 ```bash
-# Build for all platforms (run on each respective OS)
-npm run make -- --platform=darwin
-npm run make -- --platform=win32  
+# 1. Ensure icon files exist
+mkdir -p assets/icons
+# Copy your icon files to assets/icons/icon.{png,ico,icns}
+
+# 2. Build for macOS (native)
+npm run make
+
+# 3. Build for Windows (requires Wine)
+# First install: brew install wine-stable mono
+npm run make -- --platform=win32
+
+# 4. Build for Linux (requires dpkg/fakeroot)
+# First install: brew install dpkg fakeroot
 npm run make -- --platform=linux
 ```
 
-#### Using Docker (Linux builds)
+#### Common Build Issues and Solutions
+
+##### Icon File Errors
+```bash
+# Create icon directory
+mkdir -p assets/icons
+
+# Convert existing icon to required formats
+# PNG → ICO (for Windows)
+sips -s format png src/assets/icons/icon.jpeg --out assets/icons/icon.png
+# You'll need to convert PNG to ICO using an online tool or ImageMagick
+
+# For macOS ICNS, use iconutil or online converter
+```
+
+##### Linux Build Name Mismatch
+If you get "could not find Electron app binary" error:
+1. Check that `executableName` in `forge.config.js` matches package name
+2. Ensure `package.json` has a `description` field
+
+##### Windows Build on macOS
+If Wine installation fails:
+```bash
+# Alternative: Use GitHub Actions (see CI/CD section)
+# Or use a Windows VM/machine for native builds
+```
+
+#### Using Docker for Cross-Platform Builds
+
+##### Linux Builds via Docker
 ```bash
 # Build Linux version using Docker
 docker run --rm -ti \
-  --env-file <(env | grep -iE 'DEBUG|NODE_|ELECTRON_|YARN_|NPM_|CI|CIRCLE|TRAVIS_TAG|TRAVIS|TRAVIS_REPO_|TRAVIS_BUILD_|TRAVIS_BRANCH|TRAVIS_PULL_REQUEST_|APPVEYOR_|CI_|BUILDKITE|HEROKU') \
+  --env-file <(env | grep -iE 'DEBUG|NODE_|ELECTRON_|YARN_|NPM_|CI|CIRCLE|TRAVIS|APPVEYOR|BUILDKITE') \
   --env ELECTRON_CACHE="/root/.cache/electron" \
   --env ELECTRON_BUILDER_CACHE="/root/.cache/electron-builder" \
   -v ${PWD}:/project \
@@ -243,8 +336,63 @@ docker run --rm -ti \
   -v ~/.cache/electron:/root/.cache/electron \
   -v ~/.cache/electron-builder:/root/.cache/electron-builder \
   electronuserland/builder:wine \
-  /bin/bash -c "cd /project && npm install && npm run make"
+  /bin/bash -c "cd /project && npm install && npm run make -- --platform=linux"
 ```
+
+##### Windows Builds via Docker
+```bash
+# Windows builds in Docker (experimental)
+docker run --rm -ti \
+  -v ${PWD}:/project \
+  electronuserland/builder:wine \
+  /bin/bash -c "cd /project && npm install && npm run make -- --platform=win32"
+```
+
+### CI/CD for Multi-Platform Builds (Recommended)
+
+#### GitHub Actions Configuration
+
+Create `.github/workflows/build.yml`:
+
+```yaml
+name: Build Releases
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build
+      run: npm run make
+      
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.os }}-build
+        path: out/make/**/*
+```
+
+This ensures native builds on each platform without cross-compilation issues.
 
 ### Build Optimization
 
@@ -453,6 +601,49 @@ npm run make
 - ✅ Conversation history with AI-generated titles
 - ✅ Thinking transparency for supported models
 - ✅ Responsive UI with collapsible sidebar
+
+## Quick Reference: Building for All Platforms
+
+### From macOS (Most Common Scenario)
+
+```bash
+# Prerequisites
+brew install dpkg fakeroot  # For Linux builds
+brew install wine-stable mono  # For Windows builds (requires sudo)
+
+# Create required icon files
+mkdir -p assets/icons
+cp src/assets/icons/icon.jpeg assets/icons/icon.png
+# Convert to .ico and .icns as needed
+
+# Build all platforms
+npm run make                    # macOS (native)
+npm run make -- --platform=win32   # Windows (if Wine installed)
+npm run make -- --platform=linux   # Linux (.deb only)
+```
+
+### Build Output Locations
+
+| Platform | Output Location | File Type |
+|----------|----------------|-----------|
+| macOS | `out/make/zip/darwin/arm64/` | `.zip` |
+| Windows | `out/make/squirrel.windows/arm64/` | `.exe` installer |
+| Linux | `out/make/deb/arm64/` | `.deb` package |
+
+### Troubleshooting External Builds
+
+1. **Missing Icons**: Create `assets/icons/` with `icon.png`, `icon.ico`, `icon.icns`
+2. **Linux Description Error**: Add `"description"` to `package.json`
+3. **Wine Installation Fails**: Use GitHub Actions or native Windows machine
+4. **RPM Build Fails**: Comment out RPM maker in `forge.config.js`
+
+### Recommended Approach
+
+For production releases, use **GitHub Actions** to build on native platforms:
+- Avoids cross-compilation issues
+- Ensures proper code signing
+- Builds all platforms in parallel
+- Automatic artifact collection
 
 ## Resources
 
