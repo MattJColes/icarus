@@ -1382,7 +1382,7 @@ function App() {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', marginTop: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <img 
+            {/* <img 
               src="/src/assets/icons/icon.jpeg" 
               alt="Icarus" 
               style={{ 
@@ -1390,7 +1390,7 @@ function App() {
                 height: '30px',
                 borderRadius: '5px'
               }} 
-            />
+            /> */}
             {sidebarOpen && (
               <h1 style={{ 
                 fontSize: '25px', 

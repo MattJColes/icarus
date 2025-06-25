@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, shell, dialog, protocol } from 'electron';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -180,6 +180,31 @@ function setupIPCHandlers() {
     arch: process.arch,
     version: process.getSystemVersion(),
   }));
+
+  // Asset serving handler for production builds
+  ipcMain.handle('asset:get', async (event, assetName) => {
+    try {
+      const assetPath = join(__dirname, '../renderer/main_window', assetName);
+      loggers.startup(`Reading asset: ${assetName} from ${assetPath}`);
+      
+      const data = await fs.readFile(assetPath);
+      const ext = path.extname(assetName).toLowerCase();
+      
+      let mimeType = 'application/octet-stream';
+      if (ext === '.jpeg' || ext === '.jpg') mimeType = 'image/jpeg';
+      else if (ext === '.png') mimeType = 'image/png';
+      else if (ext === '.svg') mimeType = 'image/svg+xml';
+      
+      const base64 = data.toString('base64');
+      const dataUrl = `data:${mimeType};base64,${base64}`;
+      
+      loggers.startup(`Successfully loaded asset: ${assetName} (${data.length} bytes)`);
+      return dataUrl;
+    } catch (error) {
+      loggers.error(`Failed to load asset: ${assetName}`, error);
+      throw error;
+    }
+  });
   
   ipcMain.handle('app:logs-directory', () => {
     const logsDir = path.join(app.getPath('userData'), 'logs');

@@ -3,62 +3,50 @@ import { Plus, MessageSquare, Settings, Database, Bot, ChevronLeft, ChevronRight
 import { useAppStore } from '../../store/appStore';
 import { clsx } from 'clsx';
 import { v4 as uuidv4 } from 'uuid';
+// Remove the import since it's causing issues
 
 interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
 }
 
-// Icon component to handle proper path resolution
+// Icon component with inline SVG - guaranteed to work
 const IcarusIcon: React.FC<{ className?: string }> = ({ className }) => {
-  const [imageError, setImageError] = React.useState(false);
-  
-  // Multiple paths to try in order
-  const iconPaths = React.useMemo(() => [
-    // Development path
-    '/icon.jpeg',
-    // Production relative paths
-    './icon.jpeg',
-    '../icon.jpeg',
-    // Fallback to null to show gradient icon
-    null
-  ], []);
-
-  const [currentPathIndex, setCurrentPathIndex] = React.useState(0);
-
-  const handleImageError = React.useCallback(() => {
-    if (currentPathIndex < iconPaths.length - 1) {
-      setCurrentPathIndex(prev => prev + 1);
-    } else {
-      setImageError(true);
-    }
-  }, [currentPathIndex, iconPaths.length]);
-
-  const currentPath = iconPaths[currentPathIndex];
-
-  if (imageError || !currentPath) {
-    // Fallback to a styled div that represents Icarus
-    return (
-      <div 
-        className={clsx(
-          'bg-gradient-to-br from-[#5D2E46] to-[#7B3F61] rounded-md flex items-center justify-center text-white font-bold text-sm',
-          className
-        )}
-        title="Icarus"
-      >
-        I
-      </div>
-    );
-  }
-
   return (
-    <img 
-      key={currentPathIndex} // Force re-render when path changes
-      src={currentPath}
-      alt="Icarus" 
-      className={clsx('rounded-md object-cover', className)}
-      onError={handleImageError}
-    />
+    <div 
+      className={clsx(
+        'bg-gradient-to-br from-[#5D2E46] to-[#7B3F61] rounded-md flex items-center justify-center',
+        className
+      )}
+      title="Icarus"
+    >
+      <svg 
+        width="24" 
+        height="24" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        className="text-white"
+      >
+        <path 
+          d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z" 
+          fill="currentColor" 
+          opacity="0.9"
+        />
+        <path 
+          d="M12 4L4 8v9c0 4.41 3.16 7.79 8 9 4.84-1.21 8-4.59 8-9V8l-8-4z" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="1.5"
+        />
+        <circle 
+          cx="12" 
+          cy="12" 
+          r="3" 
+          fill="currentColor" 
+          opacity="0.7"
+        />
+      </svg>
+    </div>
   );
 };
 
